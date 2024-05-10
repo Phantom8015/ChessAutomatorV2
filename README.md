@@ -26,7 +26,7 @@ First, click on the green `Code` Button. It should look something like this:
 
 Then click on Download ZIP.
 
-Extract the ZIP file, then delete any unnecessary files, like the macOS folder if you're on windows and vice versa. 
+Extract the ZIP file, then delete any unnecessary files, like README.md. DO NOT DELETE REQUIREMENTS.TXT!! 
 
 ## Step 2:
 
