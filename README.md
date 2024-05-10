@@ -56,7 +56,9 @@ Replace the edge with the `Profile Path` you get when you visit
 
 Replace the stockfish_path with either one of these paths:
 
-For Windows:
+For Windows (requires stockfish download from [here](https://stockfishchess.org/download/)):
+After you download stockfish from that website, drag the exe into the folder with the chess automator in it and rename it to "stockfish"
+Then replace your .env stockfish_path field with:
 `./stockfish.exe`
 
 For MacOS (you need `homebrew` for this):
