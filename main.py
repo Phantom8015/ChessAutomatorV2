@@ -74,16 +74,16 @@ if level.isdigit() == False and level == "stockfish":
 elif level.isdigit() == True:
     level = int(level)
     if level == 1:
-        level == 0.5
+        level = 0.5
         max_delay = 17
     elif level == 2:
-        level == 0.25
+        level = 0.25
         max_delay = 14
     elif level == 3:
-        level == 0.1
+        level = 0.1
         max_delay = 11
     elif level == 4:
-        level == 0.01
+        level = 0.01
         max_delay = 5
 elif level.isdigit() == False and level == "random":
     level = random.randint(0.01, 0.5)
