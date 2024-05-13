@@ -6,6 +6,7 @@ import chess.svg
 import chess.engine
 import random
 import time
+import uuid
 import re
 import requests
 import zipfile
@@ -20,99 +21,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 load_dotenv()
 
-def update_chromedriver():
-    url = 'https://googlechromelabs.github.io/chrome-for-testing/#stable'
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    version_number = soup.find('code').text
-    print("Latest Chromedriver version:", version_number)
-    
-    if platform.system() == 'Darwin':
-        url = f'https://storage.googleapis.com/chrome-for-testing-public/{version_number}/mac-arm64/chromedriver-mac-arm64.zip'
-        print(url)
-    elif platform.system() == 'Windows':
-        url = f'https://storage.googleapis.com/chrome-for-testing-public/{version_number}/win64/chromedriver-win64.zip'
-    else:
-        raise Exception("Unsupported platform.")
-    
-    response = requests.get(url)
-    with open('chromedriver.zip', 'wb') as f:
-        f.write(response.content)
-        f.close()
-        
-    with zipfile.ZipFile('chromedriver.zip', 'r') as zip_ref:
-        zip_ref.extractall()
-    if platform.system() == 'Darwin':
-        os.system('mv chromedriver-mac-arm64/* .')
-        os.system('rm -rf chromedriver-mac-arm64')
-    if platform.system() == 'Windows':
-        os.system('move chromedriver-win64/* .')
-        os.system('rmdir /Q /S chromedriver-win64')
-    os.remove('chromedriver.zip')
-    os.environ["installed_chromedriver_version"] = version_number
-    with open('.env', 'r') as file:
-        data = file.readlines()
-        if 'installed_chromedriver_version' in data[-1]:
-            data[-1] = f"installed_chromedriver_version={version_number}\n"
-        else:
-            data[-1] = f"{data[-1]}\ninstalled_chromedriver_version={version_number}\n"
-        file.close()
-    with open('.env', 'w') as file:
-        file.writelines(data)
-        file.close()
-    
-    print("Chromedriver updated to version:", version_number)
-
-
-def check_chrome_version():
-    try:
-        options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
-        driver = webdriver.Chrome(options=options)
-        version_info = driver.capabilities['browserVersion']
-        driver.quit()
-        return version_info
-    except Exception as e:
-        print("Error checking Chrome version:", e)
-        return None
-
-
-def update_chrome_and_chromedriver():
-    env_path = '.env'
-    if not os.path.exists(env_path):
-        print("Environment file not found.")
-        exit()
-    with open(env_path, 'r') as file:
-        data = file.readlines()
-        for line in data:
-            if line.startswith('installed_chromedriver_version'):
-                chromedriver_version = line.split('=')[1].strip()
-                os.environ["chromedriver_version"] = chromedriver_version
-                break
-        file.close()
-    current_chrome_version = check_chrome_version()
-    if current_chrome_version:
-        print("Current Chrome version:", current_chrome_version)
-    
-        chromedriver_version = os.getenv("chromedriver_version")
-        update_chromedriver()
-        print("Chromedriver is up to date.")
-        if chromedriver_version != current_chrome_version:
-            print("There seems to be an issue with your Chrome version.")
-            yn = input("Would you like to proceed with running the bot (y/n): ")
-            if yn.lower() == 'n':
-                exit()
-            elif yn.lower() == 'y':
-                print("Proceeding with running the bot. We recommend updating/downgrading your Chrome version to match the installed Chromedriver version. (" + chromedriver_version + ")")
-                time.sleep(4)
-                pass
-            else:
-                print("Invalid input. Exiting...")
-                exit()
-    else:
-        print("Failed to retrieve Chrome version.")
-        
-# update_chrome_and_chromedriver()
 
 def get_piece_from_class(piece_class):
     try:
@@ -136,10 +44,29 @@ def get_board_from_web(driver):
         return html_structure    
     except Exception as e:
         print("Error, code 2:", e)
+def get_user_data_dir():
+    base_dir = os.path.join(os.getcwd(), "user_data")
+    if not os.path.exists(base_dir):
+        os.mkdir(base_dir)
+    user_data_file = os.path.join(base_dir, "user_data_dir.txt")
+    if os.path.exists(user_data_file):
+        with open(user_data_file, "r") as file:
+            user_dir = file.read().strip()
+    else:
+        user_dir = create_user_data_dir()
+        with open(user_data_file, "w") as file:
+            file.write(user_dir)
+    return user_dir
+
+def create_user_data_dir():
+    user_dir = os.path.join(os.getcwd(), "user_data", str(uuid.uuid4()))
+    os.mkdir(user_dir)
+    return user_dir
+
 
 level = os.getenv("level")
 stockfish_path = os.getenv("stockfish_path")
-profile_path = os.getenv("chrome_profile_path")
+profile_path = get_user_data_dir()
 max_delay = 1
 
 if level.isdigit() == False and level == "stockfish":
@@ -158,15 +85,16 @@ elif level.isdigit() == True:
     elif level == 4:
         level == 0.01
         max_delay = 5
-
 elif level.isdigit() == False and level == "random":
-    level = random.randint(1, 4)
+    level = random.randint(0.01, 0.5)
 else:
     raise Exception("Level must be either a number between 1 (worst) and 4 (best, but still makes mistakes), 'stockfish' (raw engine, BE CAREFUL WITH THIS) or 'random'.")
 
 def get_best_move(board):
     try:
-        if random.random() < level:
+        pooe = random.random()
+        if pooe < level:
+            print("Random move. " + str(pooe) + " < " + str(level) + ".")
             legal_moves = [move for move in board.legal_moves]
             random_move = random.choice(legal_moves)
             return random_move
