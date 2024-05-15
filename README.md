@@ -39,18 +39,12 @@ Now that you're in the directory, open `.env` in a text editor. (For example, No
 The .env file should look something like:
 
 ```
-edge_profile_path=''
 stockfish_path=''
 level=''
 ```
 
 ## Step 5:
 Replace all the variables in .env with what you see in the next few fields.
-
-### edge_profile_path:
-
-Replace the edge with the `Profile Path` you get when you visit
-`edge://version` on your Microsoft Edge.
 
 ### stockfish_path
 
