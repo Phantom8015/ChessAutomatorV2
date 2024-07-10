@@ -78,4 +78,4 @@ Now you're all set to enjoy automated chess with the ChessCom Automator! Good Lu
 **I do not take responsibility for what chaos you create. If your chess com account gets banned/locked/or any form of punishment, I am not responsible.**
 
 
-Credits to [Jad AlHakim](https://github.com/DreamedOfIt)
+Credits to [Jad Al Hakim](https://github.com/JadXV)
